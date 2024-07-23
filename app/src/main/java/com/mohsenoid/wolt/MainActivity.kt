@@ -1,50 +1,59 @@
 package com.mohsenoid.wolt
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.mohsenoid.wolt.ui.theme.WoltAssignmentTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mohsenoid.wolt.restaurants.ui.RestaurantsScreen
+import com.mohsenoid.wolt.restaurants.ui.RestaurantsViewModel
+import com.mohsenoid.wolt.ui.theme.WoltTheme
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            WoltAssignmentTheme {
+            WoltTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+
+                    val viewModel: RestaurantsViewModel = koinViewModel()
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                    LaunchedEffect(Unit) {
+                        viewModel.updateStatusError.collect { updateStatusError ->
+                            Toast.makeText(
+                                this@MainActivity,
+                                updateStatusError,
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                    }
+
+                    LaunchedEffect(true) {
+                        viewModel.getRestaurants()
+                    }
+
+                    RestaurantsScreen(
                         modifier = Modifier.padding(innerPadding),
+                        uiState = uiState,
+                        onFavoriteClicked = { restaurant ->
+                            viewModel.updateFavouriteRestaurant(
+                                id = restaurant.id,
+                                isFavourite = !restaurant.isFavourite,
+                            )
+                        },
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WoltAssignmentTheme {
-        Greeting("Android")
     }
 }
