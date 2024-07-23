@@ -43,8 +43,8 @@ class MainActivity : ComponentActivity() {
                     }
 
                     RestaurantsScreen(
-                        modifier = Modifier.padding(innerPadding),
                         uiState = uiState,
+                        modifier = Modifier.padding(innerPadding),
                         onFavoriteClicked = { restaurant ->
                             viewModel.updateFavouriteRestaurant(
                                 id = restaurant.id,

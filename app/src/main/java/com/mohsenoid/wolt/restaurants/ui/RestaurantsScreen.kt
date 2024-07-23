@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -25,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,9 +39,9 @@ import com.mohsenoid.wolt.ui.util.SeparatorLine
 
 @Composable
 fun RestaurantsScreen(
-    modifier: Modifier = Modifier,
     uiState: RestaurantsUiState,
-    onFavoriteClicked: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier,
+    onFavoriteClicked: (Restaurant) -> Unit = {},
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -109,7 +111,8 @@ fun RestaurantItem(
             modifier =
                 Modifier
                     .fillMaxHeight()
-                    .aspectRatio(1f),
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop,
         )
         Column(
