@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 rootProject.name = "Wolt Assignment"
 
 include(":app")
+include(":location")
