@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(true) {
+                    LaunchedEffect(Unit) {
                         viewModel.getRestaurants()
                     }
 

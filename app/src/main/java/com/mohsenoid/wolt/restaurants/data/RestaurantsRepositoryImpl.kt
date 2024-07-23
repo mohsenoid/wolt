@@ -36,7 +36,7 @@ internal class RestaurantsRepositoryImpl(
                 val restaurantsResponseItems: List<ItemRemoteModel>? =
                     response.body()?.sections?.firstOrNull { it.name == RESTAURANTS_SECTION_NAME }?.items
                 if (response.isSuccessful && restaurantsResponseItems != null) {
-                    handleSuccessfulRestaurantsResponse(restaurantsResponseItems.take(limit))
+                    handleRestaurantsResponse(restaurantsResponseItems.take(limit))
                 } else {
                     Result.failure(Exception(response.message().ifEmpty { "Unknown Error" }))
                 }
@@ -47,13 +47,13 @@ internal class RestaurantsRepositoryImpl(
             }
         }
 
-    private suspend fun handleSuccessfulRestaurantsResponse(restaurantsResponseItems: List<ItemRemoteModel>): Result<List<Restaurant>> {
+    private suspend fun handleRestaurantsResponse(responseItems: List<ItemRemoteModel>): Result<List<Restaurant>> {
         val restaurantsIds: Set<String> =
-            restaurantsResponseItems.map { item -> item.venue.id }.toSet()
+            responseItems.map { item -> item.venue.id }.toSet()
         val favouriteRestaurantsIds = restaurantsDao.getFavouriteRestaurantsIds(restaurantsIds)
 
         val restaurants =
-            restaurantsResponseItems.map { item ->
+            responseItems.map { item ->
                 val isFavourite: Boolean = favouriteRestaurantsIds.contains(item.venue.id)
                 item.toRestaurant(isFavourite)
             }

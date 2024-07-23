@@ -45,20 +45,22 @@ class RestaurantsRepositoryImplTest {
         runTest {
             // GIVEN
             val location = Location(lat = TEST_LOCATION_LAT, lon = TEST_LOCATION_LON)
-            val restaurantsResponse: RestaurantsResponse = createRestaurantsResponse(
-                id = TEST_RESTAURANT_ID,
-                name = TEST_RESTAURANT_NAME,
-                shortDescription = TEST_RESTAURANT_SHORT_DESCRIPTION,
-                imageUrl = TEST_RESTAURANT_IMAGE_URL,
-            )
-            val expectedRestaurants = listOf(
-                createRestaurant(
+            val restaurantsResponse: RestaurantsResponse =
+                createRestaurantsResponse(
                     id = TEST_RESTAURANT_ID,
                     name = TEST_RESTAURANT_NAME,
                     shortDescription = TEST_RESTAURANT_SHORT_DESCRIPTION,
                     imageUrl = TEST_RESTAURANT_IMAGE_URL,
-                ),
-            )
+                )
+            val expectedRestaurants =
+                listOf(
+                    createRestaurant(
+                        id = TEST_RESTAURANT_ID,
+                        name = TEST_RESTAURANT_NAME,
+                        shortDescription = TEST_RESTAURANT_SHORT_DESCRIPTION,
+                        imageUrl = TEST_RESTAURANT_IMAGE_URL,
+                    ),
+                )
             coEvery { restaurantsApiService.getRestaurants(lat = TEST_LOCATION_LAT, lon = TEST_LOCATION_LON) } returns Response.success(restaurantsResponse)
             coEvery { restaurantsDao.getFavouriteRestaurantsIds(setOf(TEST_RESTAURANT_ID)) } returns emptyList()
 

@@ -84,4 +84,3 @@ class RestaurantsDaoTest {
         private const val TEST_UNEXPECTED_RESTAURANT_ID = "Unexpected Restaurant ID"
     }
 }
-

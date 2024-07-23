@@ -12,26 +12,30 @@ internal fun createRestaurantsResponse(
     shortDescription: String? = null,
     imageUrl: String = "Image URL",
 ): RestaurantsResponse {
-    val venue = VenueRemoteModel(
-        id = id,
-        name = name,
-        shortDescription = shortDescription,
-    )
-    val image = ImageRemoteModel(
-        url = imageUrl,
-    )
-    val items = listOf(
-        ItemRemoteModel(
-            image = image,
-            venue = venue,
-        ),
-    )
-    val sections = listOf(
-        SectionRemoteModel(
-            name = "restaurants-delivering-venues",
-            items = items,
-        ),
-    )
+    val venue =
+        VenueRemoteModel(
+            id = id,
+            name = name,
+            shortDescription = shortDescription,
+        )
+    val image =
+        ImageRemoteModel(
+            url = imageUrl,
+        )
+    val items =
+        listOf(
+            ItemRemoteModel(
+                image = image,
+                venue = venue,
+            ),
+        )
+    val sections =
+        listOf(
+            SectionRemoteModel(
+                name = "restaurants-delivering-venues",
+                items = items,
+            ),
+        )
     return RestaurantsResponse(
         sections = sections,
     )
