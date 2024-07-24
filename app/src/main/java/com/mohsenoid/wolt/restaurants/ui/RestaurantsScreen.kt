@@ -1,6 +1,7 @@
 package com.mohsenoid.wolt.restaurants.ui
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,29 +25,44 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohsenoid.wolt.restaurants.domain.model.Restaurant
 import com.mohsenoid.wolt.ui.theme.WoltTheme
 import com.mohsenoid.wolt.ui.util.AsyncImageWithPreview
 import com.mohsenoid.wolt.ui.util.LoadingScreen
 import com.mohsenoid.wolt.ui.util.SeparatorLine
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun RestaurantsScreen(
-    uiState: RestaurantsUiState,
-    modifier: Modifier = Modifier,
-    onFavoriteClicked: (Restaurant) -> Unit = {},
-) {
+fun RestaurantsScreen(modifier: Modifier = Modifier) {
+    val viewModel: RestaurantsViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.updateStatusError.collect { updateStatusError ->
+            Toast.makeText(context, updateStatusError, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getRestaurants()
+    }
+
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        when (uiState) {
+        when (val currentUiState = uiState) {
             RestaurantsUiState.Loading -> {
                 LoadingScreen()
             }
@@ -54,9 +70,12 @@ fun RestaurantsScreen(
             is RestaurantsUiState.Success -> {
                 RestaurantsList(
                     onFavoriteClicked = { restaurant ->
-                        onFavoriteClicked(restaurant)
+                        viewModel.updateFavouriteRestaurant(
+                            id = restaurant.id,
+                            isFavourite = !restaurant.isFavourite,
+                        )
                     },
-                    restaurants = uiState.restaurants,
+                    restaurants = currentUiState.restaurants,
                 )
             }
         }
