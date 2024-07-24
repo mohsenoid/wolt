@@ -31,19 +31,17 @@ class RestaurantsScreenTest {
     @Test
     fun `Given a success RestaurantsUiState, When content is RestaurantsScreen, Then it should display restaurant name and short description`() {
         // GIVEN
-        val uiState =
-            RestaurantsUiState.Success(
-                listOf(
-                    createRestaurant(
-                        name = TEST_RESTAURANT_NAME,
-                        shortDescription = TEST_RESTAURANT_SHORT_DESCRIPTION,
-                    ),
+        val restaurants =
+            listOf(
+                createRestaurant(
+                    name = TEST_RESTAURANT_NAME,
+                    shortDescription = TEST_RESTAURANT_SHORT_DESCRIPTION,
                 ),
             )
 
         // WHEN
         rule.setContent {
-            RestaurantsScreen(uiState = uiState)
+            RestaurantsList(restaurants = restaurants, onFavoriteClicked = {})
         }
 
         // THEN

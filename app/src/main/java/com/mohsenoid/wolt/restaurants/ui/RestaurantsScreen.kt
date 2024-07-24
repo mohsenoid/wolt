@@ -41,52 +41,49 @@ import com.mohsenoid.wolt.ui.theme.WoltTheme
 import com.mohsenoid.wolt.ui.util.AsyncImageWithPreview
 import com.mohsenoid.wolt.ui.util.LoadingScreen
 import com.mohsenoid.wolt.ui.util.SeparatorLine
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RestaurantsScreen(modifier: Modifier = Modifier) {
     val viewModel: RestaurantsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
     val context = LocalContext.current
+
+    // Handle error messages
     LaunchedEffect(Unit) {
-        viewModel.updateStatusError.collect { updateStatusError ->
-            Toast.makeText(context, updateStatusError, Toast.LENGTH_SHORT).show()
+        viewModel.updateStatusError.collectLatest { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
+    // Fetch restaurants on launch
     LaunchedEffect(Unit) {
         viewModel.getRestaurants()
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         when (val currentUiState = uiState) {
-            RestaurantsUiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is RestaurantsUiState.Success -> {
+            RestaurantsUiState.Loading -> LoadingScreen()
+            is RestaurantsUiState.Success ->
                 RestaurantsList(
+                    restaurants = currentUiState.restaurants,
                     onFavoriteClicked = { restaurant ->
                         viewModel.updateFavouriteRestaurant(
                             id = restaurant.id,
                             isFavourite = !restaurant.isFavourite,
                         )
                     },
-                    restaurants = currentUiState.restaurants,
                 )
-            }
         }
     }
 }
 
 @Composable
 fun RestaurantsList(
-    modifier: Modifier = Modifier,
-    onFavoriteClicked: (Restaurant) -> Unit = {},
     restaurants: List<Restaurant>,
+    onFavoriteClicked: (Restaurant) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier =
@@ -96,10 +93,7 @@ fun RestaurantsList(
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(
-            items = restaurants,
-            key = { it.id },
-        ) { restaurant ->
+        items(items = restaurants, key = { it.id }) { restaurant ->
             RestaurantItem(restaurant, onFavoriteClicked)
             SeparatorLine(
                 Modifier
@@ -114,56 +108,75 @@ fun RestaurantsList(
 @Composable
 fun RestaurantItem(
     restaurant: Restaurant,
-    onFavoriteClicked: (Restaurant) -> Unit = {},
+    onFavoriteClicked: (Restaurant) -> Unit,
 ) {
     Row(
         modifier =
-            Modifier
-                .height(80.dp)
+            Modifier.height(80.dp)
                 .fillMaxWidth()
                 .clickable { onFavoriteClicked(restaurant) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AsyncImageWithPreview(
-            model = restaurant.imageUrl,
-            contentDescription = restaurant.name,
-            modifier =
-                Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop,
+        RestaurantItemImage(restaurant)
+        RestaurantItemInfo(restaurant, modifier = Modifier.weight(1f))
+        RestaurantItemFavoriteIcon(isFavorite = restaurant.isFavourite)
+    }
+}
+
+@Composable
+private fun RestaurantItemImage(restaurant: Restaurant) {
+    AsyncImageWithPreview(
+        model = restaurant.imageUrl,
+        contentDescription = restaurant.name,
+        modifier =
+            Modifier
+                .fillMaxHeight()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(8.dp)),
+        contentScale = ContentScale.Crop,
+    )
+}
+
+@Composable
+private fun RestaurantItemInfo(
+    restaurant: Restaurant,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .padding(8.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = restaurant.name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.titleMedium,
         )
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxHeight()
-                    .padding(8.dp)
-                    .weight(1f),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = restaurant.name,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Text(
-                text = restaurant.shortDescription,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelMedium,
-            )
-        }
-        Icon(
-            imageVector = if (restaurant.isFavourite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-            contentDescription = "Favourite",
-            modifier =
-                Modifier
-                    .size(48.dp)
-                    .padding(8.dp),
+        Text(
+            text = restaurant.shortDescription,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelMedium,
         )
     }
+}
+
+@Composable
+private fun RestaurantItemFavoriteIcon(
+    isFavorite: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+        contentDescription = "Favourite",
+        modifier =
+            modifier
+                .size(48.dp)
+                .padding(8.dp),
+    )
 }
 
 @Suppress("MagicNumber")
@@ -181,6 +194,7 @@ fun RestaurantItemPreview() {
                     imageUrl = "https://example.com/image.jpg",
                     isFavourite = false,
                 ),
+            onFavoriteClicked = {},
         )
     }
 }
@@ -209,6 +223,7 @@ fun RestaurantListPreview() {
                         isFavourite = true,
                     ),
                 ),
+            onFavoriteClicked = {},
         )
     }
 }
