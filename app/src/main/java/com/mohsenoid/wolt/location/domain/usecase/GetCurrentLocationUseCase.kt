@@ -23,9 +23,9 @@ class GetCurrentLocationUseCase(private val locationRepository: LocationReposito
         data class Success(val location: Location) : Result
 
         sealed interface Failure : Result {
-            data object NoLocation : Result
+            data object NoLocation : Failure
 
-            data class Unknown(val message: String) : Result
+            data class Unknown(val message: String) : Failure
         }
     }
 }
