@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mohsenoid.wolt.R
 import com.mohsenoid.wolt.restaurants.domain.model.Restaurant
 import com.mohsenoid.wolt.ui.theme.WoltTheme
 import com.mohsenoid.wolt.ui.util.AsyncImageWithPreview
@@ -53,7 +54,20 @@ fun RestaurantsScreen(modifier: Modifier = Modifier) {
 
     // Handle error messages
     LaunchedEffect(Unit) {
-        viewModel.updateStatusError.collectLatest { message ->
+        viewModel.errorEvent.collectLatest { error ->
+            val message =
+                when (error) {
+                    RestaurantUiError.NoInternetConnection -> {
+                        context.getString(R.string.no_internet_connection_error)
+                    }
+                    RestaurantUiError.NoLocation -> {
+                        context.getString(R.string.no_location_data_error)
+                    }
+                    is RestaurantUiError.Unknown -> {
+                        context.getString(R.string.unknown_error, error.message)
+                    }
+                }
+
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
@@ -116,7 +130,8 @@ fun RestaurantItem(
 ) {
     Row(
         modifier =
-            Modifier.height(80.dp)
+            Modifier
+                .height(80.dp)
                 .fillMaxWidth()
                 .clickable { onFavoriteClicked(restaurant) },
         verticalAlignment = Alignment.CenterVertically,
