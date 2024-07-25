@@ -26,7 +26,7 @@ class RestaurantsViewModel(
 
     private var getRestaurantsJob: Job? = null
 
-    fun getRestaurants() {
+    fun startObservingRestaurants() {
         getRestaurantsJob?.cancel()
 
         getRestaurantsJob =
@@ -51,6 +51,10 @@ class RestaurantsViewModel(
                     }
                 }
             }
+    }
+
+    fun stopObservingRestaurants() {
+        getRestaurantsJob?.cancel()
     }
 
     fun updateFavouriteRestaurant(

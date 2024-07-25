@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohsenoid.wolt.restaurants.domain.model.Restaurant
 import com.mohsenoid.wolt.ui.theme.WoltTheme
@@ -58,8 +59,11 @@ fun RestaurantsScreen(modifier: Modifier = Modifier) {
     }
 
     // Fetch restaurants on launch
-    LaunchedEffect(Unit) {
-        viewModel.getRestaurants()
+    LifecycleResumeEffect(Unit) {
+        viewModel.startObservingRestaurants()
+        onPauseOrDispose {
+            viewModel.stopObservingRestaurants()
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
