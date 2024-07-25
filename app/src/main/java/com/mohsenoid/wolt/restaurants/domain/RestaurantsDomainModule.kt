@@ -1,13 +1,13 @@
 package com.mohsenoid.wolt.restaurants.domain
 
-import com.mohsenoid.wolt.restaurants.domain.usecase.GetRestaurantsUseCase
+import com.mohsenoid.wolt.restaurants.domain.usecase.ObserverNearbyRestaurantsUseCase
 import com.mohsenoid.wolt.restaurants.domain.usecase.UpsertFavouriteRestaurantUseCase
 import org.koin.dsl.module
 
 internal val restaurantsDomainModule =
     module {
         factory {
-            GetRestaurantsUseCase(
+            ObserverNearbyRestaurantsUseCase(
                 getCurrentLocationUseCase = get(),
                 restaurantsRepository = get(),
             )
