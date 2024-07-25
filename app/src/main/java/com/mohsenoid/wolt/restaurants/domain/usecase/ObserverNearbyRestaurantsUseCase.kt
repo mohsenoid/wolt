@@ -9,7 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class GetRestaurantsUseCase(
+class ObserverNearbyRestaurantsUseCase(
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val restaurantsRepository: RestaurantsRepository,
 ) {

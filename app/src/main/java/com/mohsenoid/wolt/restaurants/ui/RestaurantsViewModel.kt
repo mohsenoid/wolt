@@ -2,7 +2,7 @@ package com.mohsenoid.wolt.restaurants.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mohsenoid.wolt.restaurants.domain.usecase.GetRestaurantsUseCase
+import com.mohsenoid.wolt.restaurants.domain.usecase.ObserverNearbyRestaurantsUseCase
 import com.mohsenoid.wolt.restaurants.domain.usecase.UpsertFavouriteRestaurantUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RestaurantsViewModel(
-    private val getRestaurantsUseCase: GetRestaurantsUseCase,
+    private val observerNearbyRestaurantsUseCase: ObserverNearbyRestaurantsUseCase,
     private val upsertFavouriteRestaurantUseCase: UpsertFavouriteRestaurantUseCase,
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<RestaurantsUiState> =
@@ -24,28 +24,28 @@ class RestaurantsViewModel(
     private val _updateStatusError: MutableSharedFlow<String> = MutableSharedFlow()
     val updateStatusError: Flow<String> by ::_updateStatusError
 
-    private var getRestaurantsJob: Job? = null
+    private var observeNearbyRestaurantsJob: Job? = null
 
     fun startObservingRestaurants() {
-        getRestaurantsJob?.cancel()
+        observeNearbyRestaurantsJob?.cancel()
 
-        getRestaurantsJob =
+        observeNearbyRestaurantsJob =
             viewModelScope.launch {
-                getRestaurantsUseCase(INTERVAL, RESTAURANTS_LIMIT).collectLatest { result ->
+                observerNearbyRestaurantsUseCase(INTERVAL, RESTAURANTS_LIMIT).collectLatest { result ->
                     when (result) {
-                        is GetRestaurantsUseCase.Result.Success -> {
+                        is ObserverNearbyRestaurantsUseCase.Result.Success -> {
                             _uiState.value = RestaurantsUiState.Success(result.restaurants)
                         }
 
-                        GetRestaurantsUseCase.Result.Failure.NoInternetConnection -> {
+                        ObserverNearbyRestaurantsUseCase.Result.Failure.NoInternetConnection -> {
                             _updateStatusError.emit("No Internet Connection")
                         }
 
-                        GetRestaurantsUseCase.Result.Failure.NoLocation -> {
+                        ObserverNearbyRestaurantsUseCase.Result.Failure.NoLocation -> {
                             _updateStatusError.emit("No Location data")
                         }
 
-                        is GetRestaurantsUseCase.Result.Failure.Unknown -> {
+                        is ObserverNearbyRestaurantsUseCase.Result.Failure.Unknown -> {
                             _updateStatusError.emit("Unknown Error: ${result.message}")
                         }
                     }
@@ -54,7 +54,7 @@ class RestaurantsViewModel(
     }
 
     fun stopObservingRestaurants() {
-        getRestaurantsJob?.cancel()
+        observeNearbyRestaurantsJob?.cancel()
     }
 
     fun updateFavouriteRestaurant(

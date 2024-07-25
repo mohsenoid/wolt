@@ -4,7 +4,7 @@ import com.mohsenoid.wolt.location.domain.usecase.GetCurrentLocationUseCase
 import com.mohsenoid.wolt.restaurants.data.restaurantsDataModules
 import com.mohsenoid.wolt.restaurants.domain.RestaurantsRepository
 import com.mohsenoid.wolt.restaurants.domain.restaurantsDomainModule
-import com.mohsenoid.wolt.restaurants.domain.usecase.GetRestaurantsUseCase
+import com.mohsenoid.wolt.restaurants.domain.usecase.ObserverNearbyRestaurantsUseCase
 import com.mohsenoid.wolt.restaurants.domain.usecase.UpsertFavouriteRestaurantUseCase
 import com.mohsenoid.wolt.restaurants.ui.restaurantsUiModule
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -36,7 +36,7 @@ class KoinModulesTest : KoinTest {
         restaurantsUiModule.verify(
             extraTypes =
                 listOf(
-                    GetRestaurantsUseCase::class,
+                    ObserverNearbyRestaurantsUseCase::class,
                     UpsertFavouriteRestaurantUseCase::class,
                 ),
         )
