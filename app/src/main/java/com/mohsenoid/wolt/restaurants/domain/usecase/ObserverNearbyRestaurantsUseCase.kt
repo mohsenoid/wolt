@@ -62,11 +62,11 @@ class ObserverNearbyRestaurantsUseCase(
         data class Success(val restaurants: List<Restaurant>) : Result
 
         sealed interface Failure : Result {
-            data object NoInternetConnection : Result
+            data object NoInternetConnection : Failure
 
-            data object NoLocation : Result
+            data object NoLocation : Failure
 
-            data class Unknown(val message: String) : Result
+            data class Unknown(val message: String) : Failure
         }
     }
 }
